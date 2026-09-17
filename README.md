@@ -4,7 +4,7 @@ Aim: A 4-wide pipelined arithmetic unit that computes y = (a + b) × c, with a S
 
 ## Run and Compile
 ```bash
-verilator --binary --timing src/arithmetic_unit.sv tb/arithmetic_unit_tb.sv
+verilator --binary --timing --top-module arithmetic_unit_tb src/arithmetic_unit.sv tb/arithmetic_unit_tb.sv
 
-./obj_dir/Varithmetic_unit
+./obj_dir/Varithmetic_unit_tb
 ```
