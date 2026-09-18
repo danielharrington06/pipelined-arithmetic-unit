@@ -1,5 +1,33 @@
 module arithmetic_unit_tb;
 
+    class transaction;
+
+        rand logic [31:0] a;
+        rand logic [31:0] b;
+        rand logic [31:0] c;
+
+        constraint value_ranges {
+            a dist {
+                32'h00000000 := 10,
+                [32'h00000001:32'h000003E8] := 70,
+                [32'hFFFFFF00:32'hFFFFFFFF] := 20
+            };
+
+            b dist {
+                32'h00000000 := 10,
+                [32'h00000001:32'h000003E8] := 70,
+                [32'hFFFFFF00:32'hFFFFFFFF] := 20
+            };
+
+            c dist {
+                32'h00000000 := 10,
+                [32'h00000001:32'h000003E8] := 70,
+                [32'hFFFFFF00:32'hFFFFFFFF] := 20
+            };
+        }
+
+    endclass
+
     logic clk;
 
     logic [31:0] a [4];
@@ -12,6 +40,8 @@ module arithmetic_unit_tb;
 
     int NUM_TESTS = 100;
     int errors = 0;
+
+    transaction t = new();
 
     function automatic logic [31:0] calculate_expected(
         logic [31:0] a,
@@ -41,15 +71,19 @@ module arithmetic_unit_tb;
     initial begin
         clk = 0;
 
-        // ============================================================
-        // Randomised tests
-        // ============================================================
+
+        // --- Constrained randomised tests ---
+
 
         // Generate the first input batch
         for (int i = 0; i < 4; i++) begin
-            a[i] = $urandom;
-            b[i] = $urandom;
-            c[i] = $urandom;
+            if (t.randomize() == 0) begin
+                $fatal("Randomization failed");
+            end
+
+            a[i] = t.a;
+            b[i] = t.b;
+            c[i] = t.c;
 
             expected[i] = calculate_expected(a[i], b[i], c[i]);
         end
@@ -77,9 +111,13 @@ module arithmetic_unit_tb;
 
             // Generate the next input batch
             for (int i = 0; i < 4; i++) begin
-                a[i] = $urandom;
-                b[i] = $urandom;
-                c[i] = $urandom;
+                if (t.randomize() == 0) begin
+                    $fatal("Randomization failed");
+                end
+
+                a[i] = t.a;
+                b[i] = t.b;
+                c[i] = t.c;
 
                 expected[i] = calculate_expected(a[i], b[i], c[i]);
             end
@@ -96,12 +134,11 @@ module arithmetic_unit_tb;
             end
         end
 
-        $display("%0d random tests completed.", NUM_TESTS);
+        $display("%0d constrained-random tests completed.", NUM_TESTS);
 
 
-        // ============================================================
-        // Edge-case tests
-        // ============================================================
+
+        // --- Edge-case tests ---
 
         // Edge case 1:
         // 0 + 0 = 0, 0 * 0 = 0
@@ -152,9 +189,9 @@ module arithmetic_unit_tb;
         $display("Edge-case tests completed.");
 
 
-        // ============================================================
-        // Final result
-        // ============================================================
+
+        // --- Final result ----
+
 
         if (errors == 0) begin
             $display("All tests passed.");
