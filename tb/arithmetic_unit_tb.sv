@@ -8,6 +8,10 @@ module arithmetic_unit_tb;
     logic [31:0] y [4];
 
     logic [31:0] expected [4];
+    logic [31:0] previous_expected [4];
+
+    int NUM_TESTS = 100;
+    int errors = 0;
 
     function automatic logic [31:0] calculate_expected(
         logic [31:0] a,
@@ -32,12 +36,16 @@ module arithmetic_unit_tb;
         .y(y)
     );
 
-    always #5 clk = ~clk; // #5 means every 5 simulation time uints, it flips
+    always #5 clk = ~clk;
 
     initial begin
         clk = 0;
 
-        // Generate random input set
+        // ============================================================
+        // Randomised tests
+        // ============================================================
+
+        // Generate the first input batch
         for (int i = 0; i < 4; i++) begin
             a[i] = $urandom;
             b[i] = $urandom;
@@ -46,33 +54,114 @@ module arithmetic_unit_tb;
             expected[i] = calculate_expected(a[i], b[i], c[i]);
         end
 
-        // First cycle: pipeline is not ready
+        // Process all random test batches
+        for (int test = 0; test < NUM_TESTS; test++) begin
+
+            @(posedge clk);
+            #1;
+
+            // Check the previous batch's results
+            if (test > 0) begin
+                for (int i = 0; i < 4; i++) begin
+                    if (y[i] !== previous_expected[i]) begin
+                        $error("Random test %0d: y[%0d] incorrect, expected %0d, got %0d", test, i, previous_expected[i], y[i]);
+                        errors++;
+                    end
+                end
+            end
+
+            // Save expected results for the current batch
+            for (int i = 0; i < 4; i++) begin
+                previous_expected[i] = expected[i];
+            end
+
+            // Generate the next input batch
+            for (int i = 0; i < 4; i++) begin
+                a[i] = $urandom;
+                b[i] = $urandom;
+                c[i] = $urandom;
+
+                expected[i] = calculate_expected(a[i], b[i], c[i]);
+            end
+        end
+
+        // Check the final random batch
         @(posedge clk);
         #1;
 
-        $display("Cycle 1:");
-
         for (int i = 0; i < 4; i++) begin
-            $display("y[%0d] = %0d", i, y[i]);
-
-            assert(y[i] == 0)
-                else $error("Cycle 1: y[%0d] incorrect, got %0d", i, y[i]);
+            if (y[i] !== previous_expected[i]) begin
+                $error("Final random test: y[%0d] incorrect, expected %0d, got %0d", i, previous_expected[i], y[i]);
+                errors++;
+            end
         end
 
-        // Second cycle: results from first input set
+        $display("%0d random tests completed.", NUM_TESTS);
+
+
+        // ============================================================
+        // Edge-case tests
+        // ============================================================
+
+        // Edge case 1:
+        // 0 + 0 = 0, 0 * 0 = 0
+        a[0] = 32'h00000000;
+        b[0] = 32'h00000000;
+        c[0] = 32'h00000000;
+
+        // Edge case 2:
+        // 0 + 1 = 1, 1 * 1 = 1
+        a[1] = 32'h00000000;
+        b[1] = 32'h00000001;
+        c[1] = 32'h00000001;
+
+        // Edge case 3:
+        // FFFFFFFF + 1 = 0 (32-bit overflow)
+        a[2] = 32'hFFFFFFFF;
+        b[2] = 32'h00000001;
+        c[2] = 32'h00000001;
+
+        // Edge case 4:
+        // FFFFFFFF * 2 = 1FFFFFFFE -> FFFFFFFE (32-bit overflow)
+        a[3] = 32'hFFFFFFFF;
+        b[3] = 32'h00000000;
+        c[3] = 32'h00000002;
+
+        // Calculate expected results
+        for (int i = 0; i < 4; i++) begin
+            expected[i] = calculate_expected(a[i], b[i], c[i]);
+        end
+
+        // The edge-case batch enters the pipeline
         @(posedge clk);
         #1;
 
-        $display("Cycle 2:");
+        // Results are not ready yet, so we do not check y here.
+
+        // Wait for the edge-case results
+        @(posedge clk);
+        #1;
 
         for (int i = 0; i < 4; i++) begin
-            $display("y[%0d] = %0d, expected = %0d", i, y[i], expected[i]);
-
-            assert(y[i] == expected[i])
-                else $error("Cycle 2: y[%0d] incorrect, expected %0d, got %0d", i, expected[i], y[i]);
+            if (y[i] !== expected[i]) begin
+                $error("Edge case: y[%0d] incorrect, expected %0d, got %0d", i, expected[i], y[i]);
+                errors++;
+            end
         end
 
-        $display("All tests passed.");
+        $display("Edge-case tests completed.");
+
+
+        // ============================================================
+        // Final result
+        // ============================================================
+
+        if (errors == 0) begin
+            $display("All tests passed.");
+        end
+        else begin
+            $display("TEST FAILED: %0d errors detected.", errors);
+        end
 
         $finish;
     end
