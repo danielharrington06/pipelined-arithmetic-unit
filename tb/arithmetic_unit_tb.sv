@@ -1,10 +1,28 @@
 module arithmetic_unit_tb;
 
     logic clk;
+
     logic [31:0] a [4];
     logic [31:0] b [4];
     logic [31:0] c [4];
     logic [31:0] y [4];
+
+    logic [31:0] expected [4];
+
+    function automatic logic [31:0] calculate_expected(
+        logic [31:0] a,
+        logic [31:0] b,
+        logic [31:0] c
+    );
+
+        logic [31:0] sum;
+
+        begin
+            sum = a + b;
+            calculate_expected = sum * c;
+        end
+
+    endfunction
 
     arithmetic_unit dut (
         .clk(clk),
@@ -19,61 +37,42 @@ module arithmetic_unit_tb;
     initial begin
         clk = 0;
 
-        // input set 1
-        a[0] = 2;
-        b[0] = 3;
-        c[0] = 10;
+        // Generate random input set
+        for (int i = 0; i < 4; i++) begin
+            a[i] = $urandom;
+            b[i] = $urandom;
+            c[i] = $urandom;
 
-        a[1] = 4;
-        b[1] = 1;
-        c[1] = 7;
+            expected[i] = calculate_expected(a[i], b[i], c[i]);
+        end
 
-        a[2] = 6;
-        b[2] = 2;
-        c[2] = 4;
-
-        a[3] = 5;
-        b[3] = 5;
-        c[3] = 3;
-
-
+        // First cycle: pipeline is not ready
         @(posedge clk);
         #1;
-        // first cycle should not be ready yet
-        $display("Cyle 1:");
-        $display("y[0] = %0d", y[0]);
-        $display("y[1] = %0d", y[1]);
-        $display("y[2] = %0d", y[2]);
-        $display("y[3] = %0d", y[3]);
 
-        // Results should not be ready yet
-        assert(y[0] == 0)
-            else $error("Cycle 1: y[0] incorrect");
-        assert(y[1] == 0)
-            else $error("Cycle 1: y[1] incorrect");
-        assert(y[2] == 0)
-            else $error("Cycle 1: y[2] incorrect");
-        assert(y[3] == 0)
-            else $error("Cycle 1: y[3] incorrect");
+        $display("Cycle 1:");
 
+        for (int i = 0; i < 4; i++) begin
+            $display("y[%0d] = %0d", i, y[i]);
+
+            assert(y[i] == 0)
+                else $error("Cycle 1: y[%0d] incorrect, got %0d", i, y[i]);
+        end
+
+        // Second cycle: results from first input set
         @(posedge clk);
         #1;
 
         $display("Cycle 2:");
-        $display("y[0] = %0d", y[0]);
-        $display("y[1] = %0d", y[1]);
-        $display("y[2] = %0d", y[2]);
-        $display("y[3] = %0d", y[3]);
 
-        // Results from the first input set
-        assert(y[0] == 50)
-            else $error("Cycle 2: y[0] incorrect");
-        assert(y[1] == 35)
-            else $error("Cycle 2: y[1] incorrect");
-        assert(y[2] == 32)
-            else $error("Cycle 2: y[2] incorrect");
-        assert(y[3] == 30)
-            else $error("Cycle 2: y[3] incorrect");
+        for (int i = 0; i < 4; i++) begin
+            $display("y[%0d] = %0d, expected = %0d", i, y[i], expected[i]);
+
+            assert(y[i] == expected[i])
+                else $error("Cycle 2: y[%0d] incorrect, expected %0d, got %0d", i, expected[i], y[i]);
+        end
+
+        $display("All tests passed.");
 
         $finish;
     end
