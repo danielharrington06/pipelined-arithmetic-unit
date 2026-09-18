@@ -1,10 +1,10 @@
 module arithmetic_unit_tb;
 
     logic clk;
-    logic [31:0] a;
-    logic [31:0] b;
-    logic [31:0] c;
-    logic [31:0] y;
+    logic [31:0] a [4];
+    logic [31:0] b [4];
+    logic [31:0] c [4];
+    logic [31:0] y [4];
 
     arithmetic_unit dut (
         .clk(clk),
@@ -20,48 +20,60 @@ module arithmetic_unit_tb;
         clk = 0;
 
         // input set 1
-        a = 2;
-        b = 3;
-        c = 10;
+        a[0] = 2;
+        b[0] = 3;
+        c[0] = 10;
+
+        a[1] = 4;
+        b[1] = 1;
+        c[1] = 7;
+
+        a[2] = 6;
+        b[2] = 2;
+        c[2] = 4;
+
+        a[3] = 5;
+        b[3] = 5;
+        c[3] = 3;
 
 
         @(posedge clk);
         #1;
         // first cycle should not be ready yet
-        $display("Cycle 1: y = %0d", y);
+        $display("Cyle 1:");
+        $display("y[0] = %0d", y[0]);
+        $display("y[1] = %0d", y[1]);
+        $display("y[2] = %0d", y[2]);
+        $display("y[3] = %0d", y[3]);
 
-        // Input set 2
-        a = 4;
-        b = 1;
-        c = 7;
-
-        @(posedge clk);
-        #1;
-        // Second cycle: result from input set 1
-        $display("Cycle 2: y = %0d", y);
-        assert(y == 50)
-            else $error("Cycle 2: expected 50, got %0d", y);
-        
-        // Input set 3
-        a = 6;
-        b = 2;
-        c = 4;
+        // Results should not be ready yet
+        assert(y[0] == 0)
+            else $error("Cycle 1: y[0] incorrect");
+        assert(y[1] == 0)
+            else $error("Cycle 1: y[1] incorrect");
+        assert(y[2] == 0)
+            else $error("Cycle 1: y[2] incorrect");
+        assert(y[3] == 0)
+            else $error("Cycle 1: y[3] incorrect");
 
         @(posedge clk);
         #1;
 
-        // Third cycle: result from input set 2
-        $display("Cycle 3: y = %0d", y);
-        assert(y == 35)
-            else $error("Cycle 3: expected 35, got %0d", y);
-        
-        @(posedge clk);
-        #1;
+        $display("Cycle 2:");
+        $display("y[0] = %0d", y[0]);
+        $display("y[1] = %0d", y[1]);
+        $display("y[2] = %0d", y[2]);
+        $display("y[3] = %0d", y[3]);
 
-        // Fourth cycle: result from input set 3
-        $display("Cycle 4: y = %0d", y);
-        assert(y == 32)
-            else $error("Cycle 4: expected 32, got %0d", y);
+        // Results from the first input set
+        assert(y[0] == 50)
+            else $error("Cycle 2: y[0] incorrect");
+        assert(y[1] == 35)
+            else $error("Cycle 2: y[1] incorrect");
+        assert(y[2] == 32)
+            else $error("Cycle 2: y[2] incorrect");
+        assert(y[3] == 30)
+            else $error("Cycle 2: y[3] incorrect");
 
         $finish;
     end
