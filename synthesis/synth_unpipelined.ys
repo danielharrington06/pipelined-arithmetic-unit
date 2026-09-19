@@ -1,0 +1,14 @@
+read_verilog synthesis/arithmetic_unit_unpipelined.sv
+
+hierarchy -top arithmetic_unit
+
+proc
+flatten
+opt
+
+techmap
+opt
+
+abc -g simple
+
+stat
