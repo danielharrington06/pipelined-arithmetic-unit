@@ -1,6 +1,6 @@
 # Pipelined Arithmetic Unit
 
-Aim: A 4-wide pipelined arithmetic unit that computes y = (a + b) × c, with a SystemVerilog testbench and automated verification.
+Aim: A 4-wide pipelined arithmetic unit that computes $y = (a + b) \times c$, with a SystemVerilog testbench and automated verification.
 
 ## Run and Compile
 ```bash
@@ -9,7 +9,7 @@ verilator --binary --timing --top-module arithmetic_unit_tb src/arithmetic_unit.
 ./obj_dir/Varithmetic_unit_tb
 ```
 
-## yosys comparison
+## Synthesis and Timing Comparison
 
 4-lane Pipelined:
 ```bash
@@ -53,3 +53,25 @@ verilator --binary --timing --top-module arithmetic_unit_tb src/arithmetic_unit.
 ```
 
 The extra pipeline registers cost 256 additional flip-flops because the intermediate values are 4 x 32-bit `sum` registers = 128 flip-flops and 4 x 32-bit `c` registers = 128 flip-flops. Other than this, the combinational logic is identical and the arithmetic has not changed.
+
+```bash
+timing analysis
+================
+
+pipelined
+  combinational cells:       12494
+  register banks:            385
+  input -> register depth:   62 gates
+  register -> register depth: 64 gates
+
+unpipelined
+  combinational cells:       12486
+  register banks:            129
+  input -> register depth:   74 gates
+  register -> register depth: 74 gates
+
+register-to-register critical-path reduction: 13.5%
+relative maximum-frequency improvement: 1.16x
+```
+
+Generic gate-depth analysis reduced the syncrhonous critical path from 74 to 64 gates, a 13.5% reduction. under an equal-gate-delay model, this corresonds to a theoretical $1.16\times$ maximum-frequency improvement
