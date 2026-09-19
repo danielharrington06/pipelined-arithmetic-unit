@@ -6,4 +6,9 @@ proc
 flatten
 opt
 
+techmap
+opt
+
+abc -g simple
+
 stat
