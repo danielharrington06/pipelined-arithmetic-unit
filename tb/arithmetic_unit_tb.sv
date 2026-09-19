@@ -8,21 +8,21 @@ module arithmetic_unit_tb;
 
         constraint value_ranges {
             a dist {
-                32'h00000000 := 10,
-                [32'h00000001:32'h000003E8] := 70,
-                [32'hFFFFFF00:32'hFFFFFFFF] := 20
+                32'h00000000 :/ 10,
+                [32'h00000001:32'h000003E8] :/ 70,
+                [32'hFFFFFF00:32'hFFFFFFFF] :/ 20
             };
 
             b dist {
-                32'h00000000 := 10,
-                [32'h00000001:32'h000003E8] := 70,
-                [32'hFFFFFF00:32'hFFFFFFFF] := 20
+                32'h00000000 :/ 10,
+                [32'h00000001:32'h000003E8] :/ 70,
+                [32'hFFFFFF00:32'hFFFFFFFF] :/ 20
             };
 
             c dist {
-                32'h00000000 := 10,
-                [32'h00000001:32'h000003E8] := 70,
-                [32'hFFFFFF00:32'hFFFFFFFF] := 20
+                32'h00000000 :/ 10,
+                [32'h00000001:32'h000003E8] :/ 70,
+                [32'hFFFFFF00:32'hFFFFFFFF] :/ 20
             };
         }
 
