@@ -1,0 +1,9 @@
+read_verilog synthesis/arithmetic_unit_synth.sv
+
+hierarchy -top arithmetic_unit
+
+proc
+flatten
+opt
+
+stat
