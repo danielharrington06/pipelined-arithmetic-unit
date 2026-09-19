@@ -52,4 +52,4 @@ verilator --binary --timing --top-module arithmetic_unit_tb src/arithmetic_unit.
      4342   $_XOR_
 ```
 
-The extra pipeline registers cost 256 additional flip-flops because the intermediate values are 4 x 32-bit `sum` registers = 128 flip-flops and 4 x 32-bit `c` registers = 128 flip-flops. 
+The extra pipeline registers cost 256 additional flip-flops because the intermediate values are 4 x 32-bit `sum` registers = 128 flip-flops and 4 x 32-bit `c` registers = 128 flip-flops. Other than this, the combinational logic is identical and the arithmetic has not changed.

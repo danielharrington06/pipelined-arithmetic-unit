@@ -1,4 +1,4 @@
-read_verilog synthesis/arithmetic_unit_synth.sv
+read_verilog synthesis/arithmetic_unit.sv
 
 hierarchy -top arithmetic_unit
 
@@ -12,3 +12,4 @@ opt
 abc -g simple
 
 stat
+write_json synthesis/pipelined.json

@@ -12,3 +12,4 @@ opt
 abc -g simple
 
 stat
+write_json synthesis/unpipelined.json
