@@ -67,25 +67,6 @@ Verification includes:
 
 The reference model explicitly reproduces the 32-bit truncation behaviour of the RTL, ensuring that overflow cases are checked correctly.
 
-```vbnet
-pipelined-arithmetic-unit/ 
-├── src/ 
-│ └── arithmetic_unit.sv 
-│
-├── tb/ 
-│ └── arithmetic_unit_tb.sv 
-│
-├── synthesis/ 
-│ ├── arithmetic_unit_synth.sv 
-│ ├── arithmetic_unit_unpipelined.sv 
-│ ├── synth_pipelined.ys 
-│ ├── synth_unpipelined.ys 
-│ ├── pipelined.json 
-│ ├── unpipelined.json 
-│ └── analyse_timing.py 
-│
-└── README.md
-```
 ## Tools
 - SystemVerilog
 - Verilator
